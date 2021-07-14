@@ -1,0 +1,17 @@
+{
+  "name": "pssst",
+  "version": "1.0.0",
+  "description": "Personal Speech Service SysTem",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "orvs",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-lame": "^1.3.1",
+    "socket.io": "^4.1.3"
+  }
+}
