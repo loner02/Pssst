@@ -1,0 +1,5 @@
+package-lock.json
+/node_modules
+/workspace.code-workspace
+/server/src/speechServer/obj
+/server/src/speechServer/bin

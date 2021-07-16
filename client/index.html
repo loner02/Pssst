@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Pssst test</title>
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		/>
+        <link rel="stylesheet" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/kickstart/kickstart.css" media="all" />
+		<link rel="stylesheet" type="text/css" href="css/kickstart/style.css" media="all" /> 
+		<script type="text/javascript" src="scripts/js/jquery.min.js"></script>
+		<script type="text/javascript" src="scripts/js/kickstart.js"></script>
+		
+	</head>
+
+	<body>
+
+        <div class="grid">
+            <ul class="tabs">
+                <li><a href="#tabs-echo">Echo</a></li>
+                <li><a href="#tabs-chat">Chat</a></li>
+            </ul>
+            <div id="tabs-echo" class="tabs-content">
+                <form class="vertical" name="echo" id="echo" onsubmit="return false;">
+                    <div class="col_4">
+                        <fieldset>
+                            <legend>Server</legend>
+                            <label for="w_name1">Client Name</label>
+                            <input id="w_name1" name="w_name1" type="input" style="font-size: 1.2em;"/>
+                            <label for="w_gender1">Gender</label>
+                            <select id="w_gender1" name="w_gender1">
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                            </select>
+                            <label for="w_connect1">Connect to server</label>
+                            <button id="w_connect1" name="w_connect1" type="button" onclick="connectToServer(this.form);">Connect</button>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Voice Options</legend>
+                            <label for="w_select1">Select Voice</label>
+                            <select id="w_select1" name="w_select1" onchange="voiceChange(this.form);"></select>
+                            <label for="w_volume1">Volume</label>
+                            <input name="w_volume1" id="w_volume1" type="range" min="0" max="100" step="1" value="100" onchange="volumeChange(this.form);"/>
+                            <!--<label for="w_pitch1">Pitch</label>
+                            <input name="w_pitch1" id="w_pitch1" type="range" min="-10" max="10" step="1" value="0" onchange="pitchChange(this.form);"/>-->
+                            <label for="w_rate1">Rate</label>
+                            <input name="w_rate1" id="w_rate1" type="range" min="-10" max="10" step="1" value="0" onchange="rateChange(this.form);"/>
+                        </fieldset>
+                    </div>
+                    <div class="col_8">
+                        <label for="w_speak1">Text</label>
+                        <!--<textarea id="w_speak1" name="w_speak1" style="font-size: 1.2em;"></textarea>-->
+                        <input id="w_speak1" type="text" style="font-size: 1.2em;" onkeydown="inputTextChange(this.form, event);"/>
+                        <label for "w_response1">Response</label>
+                        <textarea readonly id="w_response1" name="w_response1" style="font-size: 0.9em;"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div id="tabs-chat" class="tabs-content">
+
+            </div>
+        </div>
+		
+        <script src="/socket.io/socket.io.js"></script>   
+		<script src="scripts/main.js"></script>
+	</body>
+
+</html>
