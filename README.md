@@ -8,11 +8,13 @@ Disclaimer: This is a proof-of-concept project for personal use, e.g. Private/Ho
 
 PSSST aims to provide personal speech services to any modern web client.
 
-Currently, TTS (text-to-speech) is supported, even for devices without speech or voice installed.
+Currently, TTS (text-to-speech) or Speech Synthesis is supported, even for devices without speech services or voices installed.
+
+STT (speech-to-text) or Speech Recognition to follow.
 
 ## Why do this?
 
-Web Speech API (according to documentation) is supported on Chrome only. (It's a Google thing.)
+Web Speech API (according to documentation) is experimental with limited browser support.
 
 Google Speech services isn't free. Neither is Microsoft Azure Cognitive services.
 
