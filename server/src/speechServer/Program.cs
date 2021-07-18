@@ -143,6 +143,7 @@ namespace speechServer
                     }
                     break;
                 case "disconnect":
+                    pipe.AddToLog("[" + pipe.Id + "]", "Disconnected.");
                     profile.Voice.Close();
                     profile.Pipe.Close();
                     Profiles.Remove(pipe.Id);

@@ -1,7 +1,8 @@
-# PSSST: Personal Speech Service SysTem
+# PSSST: Personal Speech Services SysTem
 
 ```
-Disclaimer: This is a proof-of-concept project for personal use, e.g. Private/Home networks, and not meant for enterprise deployment.
+Disclaimer: This is a proof-of-concept project for personal use, e.g. Private/Home networks, 
+and not meant for production or enterprise deployment.
 ```
 
 ## What does PSSST do?
@@ -14,7 +15,7 @@ STT (speech-to-text) or Speech Recognition to follow.
 
 ## Why do this?
 
-Web Speech API (according to documentation) is experimental with limited browser support.
+Web Speech API (according to documentation) is experimental with limited browser support. It relies on the speech services installed on the device.
 
 Google Speech services isn't free. Neither is Microsoft Azure Cognitive services.
 
@@ -43,7 +44,7 @@ Why separate the servers into two? Answer: modularity. This makes it easier to m
 
 -  A web server with support for socket.io and net pipes.
 -  Currently implemented using node.js, with express, socket.io and node-lame modules.
--  Automatically converts the audio stream to MP3 for smaller size and wider browser support.
+-  Automatically converts the audio stream to MP3 for smaller size and wider browser support. Use LAME encoder.
 
 ### Speech Server
 
@@ -52,28 +53,66 @@ Why separate the servers into two? Answer: modularity. This makes it easier to m
 -  Currently supports SAPI5 voices (32-bits or 64-bits).
 -  Also outputs viseme data, making it possible for animated avatars to speak in sync with the audio.
 
-## How to use?
+## Installation and Use
 
--  First, if not provided, build the Speech server source. This was built using MS Visual Studio and .Net Framework 4.6.1.
--  On separate console terminals, run Speech server and Web & Socket server (no particular order necessary)
+Preliminary: Download PSSST source code from Github. Copy to desired location on the server
+
+### Speech Server
+
+-  Recommended platform: Windows 10 x64 (choice of platform depends on available speech library)
+-  If needed, install .Net Runtime library. The default Speech server was built using .Net Framework 4.6.1 for compatibility with older systems.
+-  MS Windows come with pre-installed voices. Install 3rd party SAPI5 voices if desired.
+-  Build Speech server source (from /server/src/SpeechServer) using MS Visual Studio 2015 or higher.
+-  Open a console terminal and start the Speech server. The server will wait for connections via Net Pipes.
 ```
 > speechServer.exe [--debug]
+```
 
+### Web & Socket Server
+
+-  Recommended platform: Windows 10 x64. Assumed colocated on same machine as Speech server.
+-  Install node.js, if not yet installed.
+-  Install dependencies
+```
+> cd <PSSST installation folder>
+> mkdir node_modules
+> npm install express socket.io node-lame 
+```
+-  Optional, modify webpage under /client folder
+-  Run the app. The server will wait for client connection via socket.io.
+```
 > node app.js
 ```
--  Open a web browser (on a device connected to the same network) and connect to server. E.g.
+
+### Web Client
+
+-  Use any device with a modern browser (PC, tablet, phone)
+-  Connect the client and server to the same network
+-  On the device browser, connect to the web server
 ```
 http://<server-address>:3000
-localhost:3000
+or
+http://localhost:3000 if on the server machine
 ```
+-  If using the default webpage:
+    -  Input Name and Gender
+    -  Click Connect. This automatically retrieves available voices from the server
+    -  Set desired Voice and other settings
+    -  Type text to be spoken on the Input box. Press ENTER when done.
+    -  Listen for the spoken text with the selected voice
+    -  Monitor Response box for viseme and other speech info. 
 
 ## Limitations
 
 No security or encryption implemented, as Private/Home networks are supposed to be Trusted networks anyway. It shouldn't be too hard though to implement one.
 
+For TTS, only English language has been tested. And no spelling checks.
+
 ## Known Issues
 
 Some SAPI5 voices do not allow multiple clients. So if a client is already using a particular voice or fails to properly disconnect, there will be no speech output for another client trying to use said voice. Microsoft voices (or 64-bit voices?) are apparently not affected by this issue.
+
+On multiple sentences, Microsoft voices sometimes skip sentences (due to asynchronous nature of speaking?). Older SAPI5 voices are not affected by this issue.
 
 ## License
 

@@ -13,11 +13,6 @@ module.exports = function(server) {
     const PIPE_PATH = "\\\\.\\pipe\\PSSST.Pipe.Server";
     var clientMap = new Map();
 
-    // var incomingRaw = false;
-    // var client, local;
-    // var webclient_id = null;
-    // var audioData = {};
-
     // Socket communication: WEB CLIENT <=> NODEJS SERVER
     const pssst = io
         .of('/PSSST')
@@ -25,24 +20,29 @@ module.exports = function(server) {
             // for every socket connection, store to client map
             // TODO: reconnect???? disconnect????
             let clientData = {
-                //id: socket.id,
-                //public: null,
                 local: null,
-                incomingRaw: false,
-                audioData: {}
+                //incomingRaw: false,
+                audioData: []
             }
             clientMap.set(socket.id, clientData);
 
             //webclient_id = socket.id;
-            console.log('Socket connection established: '+socket.id);
+            addToLog('[WebClient]', 'Socket connection established: '+socket.id);
 
             // Initial handshake
             socket.emit('server-to-client', {msg:'Greetings from PSSST Socket Server'});
             socket.on('client-to-server', (data) => {
-                console.log(`${data.id}: ${data.msg}`);
+                addToLog('[WebClient]',`${data.id}: ${data.msg}`);
             });
             socket.on('disconnect', () => {
-                console.log(`Socket disconnect: `+socket.id);
+                addToLog('[WebClient]',`Socket disconnect: `+socket.id);
+                // disconnect local pipe as well if connected
+                // disconnect pipe to speech server
+                if (clientMap.has(socket.id) && clientMap.get(socket.id).local) {
+                    clientMap.get(socket.id).local.end(JSON.stringify({cmd:"disconnect", data:""}));
+                    // TODO: cleanup
+                    clientMap.delete(socket.id);    
+                }
             })
 
             // Handle server actions
@@ -67,9 +67,9 @@ module.exports = function(server) {
                     //clientMap.get(socket.id).public = client;
 
                     // (1) client is connected to pipe server
-                    console.log('Client: Query server: '+params.data.id);
+                    addToLog('[WebClient]','Query server: '+params.data.id);
                     client.on('end', ()=>{
-                        console.log('Query completed.');
+                        addToLog('[PipeServer]','Query completed.');
                         client.end();
                     });
                     client.on('data', (data)=>{
@@ -78,14 +78,14 @@ module.exports = function(server) {
                             case "requestAck":
                                 // (3) pipe server grants request and creates local pipe
                                 PIPE_LOCAL_PATH = "\\\\.\\pipe\\"+incoming.data;
-                                console.log("Received server ack");
+                                addToLog('[PipeServer]',"Received server ack");
                                 client.end();
 
                                 // (4) client automatically connect to local pipe: add delay?
                                 let local = net.connect(PIPE_LOCAL_PATH, function() {
                                     // store local connection
                                     clientMap.get(socket.id).local = local;
-                                    console.log('Client: Local connection');
+                                    addToLog('[WebClient]', 'Initiate Local connection');
 
                                     local.on('end', local.end);
                                     local.on('data', (params) => {
@@ -114,17 +114,19 @@ module.exports = function(server) {
                 clientMap.get(socket.id).local.write(JSON.stringify(params));
                 break;
             case "speak":
-                // (8) Speack text
+                // (8) Speak text
                 clientMap.get(socket.id).local.write(JSON.stringify(params));
+                clientMap.get(socket.id).audioData = [];
                 break;
             case 'disconnect':
                 // disconnect socketio to webclient
                 //io.of('/VRMP').sockets.get(webclient_id).disconnect(true);
                 socket.disconnect(true);
+                // below code now performed at socket listener
                 // disconnect pipe to speech server
-                clientMap.get(socket.id).local.end(JSON.stringify({cmd:"disconnect", data:""}));
+                //clientMap.get(socket.id).local.end(JSON.stringify({cmd:"disconnect", data:""}));
                 // TODO: cleanup
-                clientMap.delete(socket.id);
+                //clientMap.delete(socket.id);
                 break;
         }
     }
@@ -151,27 +153,34 @@ module.exports = function(server) {
                     }
                     break;
                 case "setVoiceResponse":
-                    console.log("Set voice: "+incoming.data);
+                    addToLog('[SpeechServer]',"Set voice: "+incoming.data);
                     break;
                 case "setVolumeResponse":
-                    console.log("Set volume: "+incoming.data);
+                    addToLog('[SpeechServer]',"Set volume: "+incoming.data);
                     break;
                 case "setRateResponse":
-                    console.log("Set rate: "+incoming.data);
+                    addToLog('[SpeechServer]',"Set rate: "+incoming.data);
                     break;
                 case "setPitchResponse":
-                    console.log("Set pitch: "+incoming.data);
+                    addToLog('[SpeechServer]',"Set pitch: "+incoming.data);
                     break;                        
                 case "speakResponse":
                     // (9) send audio data to web client
                     //console.log(incoming.data);
                     socket.emit('serverResponse', {cmd:"speakResponse", data:incoming.data});
-                    clientMap.get(socket.id).audioData = {
+                    let data = {
                         Text: incoming.data.Text,
                         Visemes: incoming.data.VisemeList,
-                        //Length: incoming.data.Length
+                        Length: incoming.data.Length,
+                        Stream: null
                     };
-                    clientMap.get(socket.id).incomingRaw = true;
+                    clientMap.get(socket.id).audioData.push(data);
+                    // clientMap.get(socket.id).audioData = {
+                    //     Text: incoming.data.Text,
+                    //     Visemes: incoming.data.VisemeList,
+                    //     //Length: incoming.data.Length
+                    // };
+                    //clientMap.get(socket.id).incomingRaw = true;
                     break;
                 defaulr:
                     break;
@@ -182,8 +191,8 @@ module.exports = function(server) {
             //let client_io = io.of('/VRMP').sockets.get(webclient_id);
             let audio_stream = [];
             let clientData = clientMap.get(socket.id);
-            if (clientData.incomingRaw == true) {
-                clientData.incomingRaw = false;
+            //if (clientData.incomingRaw == true) {
+            //    clientData.incomingRaw = false;
                 audio_stream = params;
                 console.log ("Received audio stream ["+audio_stream[0]+audio_stream[1]+audio_stream[2]+audio_stream[3]+"]:"+audio_stream.length);
                 
@@ -198,24 +207,49 @@ module.exports = function(server) {
                         // (10) Send audio buffer to web client
                         const audioBuffer = encoder.getBuffer();
                         // send to web client
-                        //let audioData = clientData.audioData;
-                        clientData.audioData.Length = audioBuffer.length;
-                        clientData.audioData.Stream = audioBuffer;
-                        //clientMap.get(socket.id).audioData = audioData;
-
-                        socket.emit('audioStream', clientData.audioData);
+                        // TODO: async errors; try single send of audio data
+                        for (let audioData of clientData.audioData) {
+                            //if ((audioData.Length == 0) || (!audioData.Stream)) {
+                            if ((audioData.Length == audio_stream.length) && 
+                                (audioData.Stream === null)){
+                                console.log("speak here");
+                                audioData.Length = audioBuffer.Length;
+                                audioData.Stream = audioBuffer;
+                                socket.emit('audioStream', audioData);
+                                break;
+                            }
+                        }
+                        // clientData.audioData.Length = audioBuffer.length;
+                        // clientData.audioData.Stream = audioBuffer;
+                        // //clientMap.get(socket.id).audioData = audioData;
+                        //socket.emit('audioStream', clientData.audioData);
                     })
                     .catch((error) => {
-                        console.log(error);
+                        addToLog('[ERROR]', error);
                     })
-            }
-            else
-                console.log("Not expecting raw data");
+            // }
+            // else
+            //     addToLog('[ERROR]',"Not expecting raw data");
         }
         finally {
 
         }
     }
 
+    function addToLog (src, msg) {
+        function pad (num) {
+            return (num<10 ? '0' : '') + num;
+        }   
 
+        let timestamp = new Date();
+        let year = pad(timestamp.getFullYear()-2000);
+        let month = pad(timestamp.getMonth() + 1);
+        let day = pad(timestamp.getDate());
+        let hour = pad(timestamp.getHours());
+        let minute = pad(timestamp.getMinutes());
+        let seconds = pad(timestamp.getSeconds());
+        let timestamp_string = year+month+day+hour+minute+seconds+" ";
+
+        console.log(timestamp_string+src+" "+msg);
+    }
 } 

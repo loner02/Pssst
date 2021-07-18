@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const debug = require('debug')('pssst:server');
 const server = require('http').Server(app);
-const socket = require('./sockets')(server);
+const socket = require('./server/sockets')(server);
 
 console.log("PSSST Web & Socket Server.");
 console.log("Press Ctrl-C to exit.\n\n");
@@ -10,6 +10,7 @@ console.log("Press Ctrl-C to exit.\n\n");
 app.get ('/', (req, res) => {
     res.sendFile(__dirname + '/client/index.html');
 })
+app.use ('/server', express.static(__dirname + '/server'));
 app.use ('/client', express.static(__dirname + '/client'));
 app.use ('/scripts', express.static(__dirname + '/client/scripts'));
 app.use ('/css', express.static(__dirname + '/client/css'));

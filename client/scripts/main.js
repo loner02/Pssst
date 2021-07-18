@@ -1,4 +1,4 @@
-var CLIENT_ID = "Lei"
+var CLIENT_ID = "Pssst"
 var CLIENT_GENDER = "Female"
 var connected = false
 var context = null;
@@ -38,6 +38,14 @@ try {
 catch(e) {
     var socket = null;
 }
+
+// NOTE: this event doesn't fire
+window.addEventListener("beforeunload", (e) => {
+    alert("closing");
+    if (connected)
+        socket.emit("serverAction", {cmd:"disconnect", data:CLIENT_ID}); 
+    connected = false;
+})
 
 function connectToServer (form) {
     //testform = form;
@@ -121,6 +129,7 @@ function inputTextChange (form, e) {
         if (e.key === "Enter") {
             //console.log(form.w_speak1.value.length);
             socket.emit("serverAction", {cmd:"speak", data:form.w_speak1.value});
+            clearResponse();
         }
     }
 }
@@ -135,6 +144,12 @@ function showResponse (data) {
         let textarea = document.getElementById("w_response1");
         //textarea.style.fontSize = '1.0em'; 
         textarea.value = text;    
+    }
+}
+
+function clearResponse () {
+    if (connected) {
+        document.getElementById("w_response1").value = "";
     }
 }
 
