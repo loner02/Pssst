@@ -1,0 +1,37 @@
+[
+    {
+        "Name": "KAL English",
+        "Gender": "Male",
+        "Culture": "en-US",
+        "Description": "An American English male speaker",
+        "Source": "kal"
+    },
+    {
+        "Name": "AWB English",
+        "Gender": "Male",
+        "Culture": "en-US",
+        "Description": "A Scottish English male speaker",
+        "Source": "awb"
+    },
+    {
+        "Name": "RMS English",
+        "Gender": "Male",
+        "Culture": "en-US",
+        "Description": "An ??? English male speaker",
+        "Source": "rms"
+    },
+    {
+        "Name": "SLT English",
+        "Gender": "Female",
+        "Culture": "en-US",
+        "Description": "An American English female speaker",
+        "Source": "slt"
+    },
+    {
+        "Name": "SLT English (ext)",
+        "Gender": "Female",
+        "Culture": "en-US",
+        "Description": "An American English female speaker",
+        "Source": "cmu_us_slt_20.flitevox"
+    }
+]

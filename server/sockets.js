@@ -10,7 +10,9 @@ module.exports = function(server) {
     const net = require('net');
     const lame = require('node-lame').Lame;
 
-    const PIPE_PATH = "\\\\.\\pipe\\PSSST.Pipe.Server";
+    //const PIPE_PATH = "\\\\.\\pipe\\PSSST.Pipe.Server";
+    const prefix = (process.platform == "win32") ? "//./pipe/" : "/tmp/";
+    const PIPE_PATH = prefix + "PSSST.Pipe.Server";
     var clientMap = new Map();
 
     // Socket communication: WEB CLIENT <=> NODEJS SERVER
@@ -77,7 +79,8 @@ module.exports = function(server) {
                         switch (incoming.cmd) {
                             case "requestAck":
                                 // (3) pipe server grants request and creates local pipe
-                                PIPE_LOCAL_PATH = "\\\\.\\pipe\\"+incoming.data;
+                                //PIPE_LOCAL_PATH = "\\\\.\\pipe\\"+incoming.data;
+                                PIPE_LOCAL_PATH = prefix+incoming.data;
                                 addToLog('[PipeServer]',"Received server ack");
                                 client.end();
 
@@ -154,15 +157,19 @@ module.exports = function(server) {
                     break;
                 case "setVoiceResponse":
                     addToLog('[SpeechServer]',"Set voice: "+incoming.data);
+                    socket.emit("serverResponse", {cmd:"settingResponse", data:"Set voice: "+incoming.data});
                     break;
                 case "setVolumeResponse":
                     addToLog('[SpeechServer]',"Set volume: "+incoming.data);
+                    socket.emit("serverResponse", {cmd:"settingResponse", data:"Set volume: "+incoming.data});
                     break;
                 case "setRateResponse":
                     addToLog('[SpeechServer]',"Set rate: "+incoming.data);
+                    socket.emit("serverResponse", {cmd:"settingResponse", data:"Set rate: "+incoming.data});
                     break;
                 case "setPitchResponse":
                     addToLog('[SpeechServer]',"Set pitch: "+incoming.data);
+                    socket.emit("serverResponse", {cmd:"settingResponse", data:"Set pitch: "+incoming.data});
                     break;                        
                 case "speakResponse":
                     // (9) send audio data to web client
@@ -194,7 +201,7 @@ module.exports = function(server) {
             //if (clientData.incomingRaw == true) {
             //    clientData.incomingRaw = false;
                 audio_stream = params;
-                console.log ("Received audio stream ["+audio_stream[0]+audio_stream[1]+audio_stream[2]+audio_stream[3]+"]:"+audio_stream.length);
+                //console.log ("Received audio stream ["+audio_stream[0]+audio_stream[1]+audio_stream[2]+audio_stream[3]+"]:"+audio_stream.length);
                 
                 // check audio stream if WAV, then convert to MP3
                 const encoder = new lame({
@@ -212,7 +219,7 @@ module.exports = function(server) {
                             //if ((audioData.Length == 0) || (!audioData.Stream)) {
                             if ((audioData.Length == audio_stream.length) && 
                                 (audioData.Stream === null)){
-                                console.log("speak here");
+                                //console.log("speak here");
                                 audioData.Length = audioBuffer.Length;
                                 audioData.Stream = audioBuffer;
                                 socket.emit('audioStream', audioData);

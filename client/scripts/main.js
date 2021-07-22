@@ -17,8 +17,13 @@ try {
                 //console.log(params.data);
                 addToVoiceList(params.data);
                 break;
+            case "settingResponse":
+                let textarea = document.getElementById("w_response1");
+                textarea.value = params.data;    
+                break;
             case "speakResponse":
                 //showResponse(params.data);
+                console.log(params.data);
                 break;
         }        
     })
@@ -27,8 +32,6 @@ try {
         console.log("Received MP3 stream: "+data.Text);
         audioQueue.push(data);
 
-        // for testing, use WebAudio
-        // for VRM integration, use Three audio: is there a streaming option, so as to be in-sync with visemes?
         if (audioQueue.length == 1) {
             showResponse(data);
             playAudio();    

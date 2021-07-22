@@ -10,7 +10,7 @@ console.log("Press Ctrl-C to exit.\n\n");
 app.get ('/', (req, res) => {
     res.sendFile(__dirname + '/client/index.html');
 })
-app.use ('/server', express.static(__dirname + '/server'));
+//app.use ('/server', express.static(__dirname + '/server'));
 app.use ('/client', express.static(__dirname + '/client'));
 app.use ('/scripts', express.static(__dirname + '/client/scripts'));
 app.use ('/css', express.static(__dirname + '/client/css'));

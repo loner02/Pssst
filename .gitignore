@@ -3,3 +3,6 @@ package-lock.json
 /workspace.code-workspace
 /server/src/speechServer/obj
 /server/src/speechServer/bin
+/server/src/mimic1
+/server/linux/voices/*.flitevox
+/server/src/speechServer/.vs
