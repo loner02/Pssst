@@ -18,7 +18,7 @@ for (let arg of args) {
         __tts = (arg.split('='))[1];
     }
 }
-if (__debug) console.log(`Using ${__tts} as speech synthesis engine.`)
+console.log(`Using ${__tts} as speech synthesis engine.`)
 
 var Profiles = new Map(); // <string, profile>
 var pipeServer = new PipeServer("", __debug);

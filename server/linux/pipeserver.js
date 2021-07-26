@@ -198,8 +198,18 @@ class LocalServer extends PipeClass {
                         case "speak":
                             if (this.Profile && this.Profile._voice) {
                                 this.Profile.speak(json.data, (response, data) => {
+                                    // BUG: while this is always reached when there's a speak call,
+                                    //  sometimes the speakResponse on sockets.js is not always called.
+                                    //  Consecutive stream,write issue?
+                                    // // TRY: delay next write for 100msec
                                     stream.write(this.composeMessage("speakResponse", response));
-                                    stream.write(data);
+                                    setTimeout(() => {
+                                        stream.write(data);
+                                    }, 100);
+                                    // // OR: do a callback on the first call
+                                    // stream.write(this.composeMessage("speakResponse", response), (err) => {
+                                    //     if (!err) stream.write(data);
+                                    // });
                                 });
                             }
                             break;

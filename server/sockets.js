@@ -174,6 +174,7 @@ module.exports = function(server) {
                 case "speakResponse":
                     // (9) send audio data to web client
                     //console.log(incoming.data);
+                    addToLog('[SpeechServer]',"Speak response: "+incoming.data.Text);
                     socket.emit('serverResponse', {cmd:"speakResponse", data:incoming.data});
                     let data = {
                         Text: incoming.data.Text,

@@ -17,15 +17,17 @@ class Profile {
 
         this._voice.speak(sentences, (data) => {
             // send back this data to client
-            //console.log(`Received speech: ${data.Text}`);
+            // console.log(`Received speech: ${data.Text}`);
             
             let response = {
                 Text: data.Text,
                 VisemeList: [],     // does not support
                 Length: data.Length
             }
-            if (callback)
+            if (callback) {
+                // console.log ("Speak callback: "+data.Text);
                 callback(response, data.AudioStream);
+            }
         });
     }
 
